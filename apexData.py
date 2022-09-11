@@ -3,14 +3,15 @@ import sys
 import flat_table as ft
 import tokenSecret
 import os
+import numpy as np
 
 def main():
     pd.options.mode.chained_assignment = None  # default='warn'
 
     matchDate = input("Enter the date of matches in YYYY-MM-DD format: ")
-
-    print('Thank you for using my Apex Legends custom match data processor!')
-    print('For more apps made by me, check out my website: https://bombersapps.com')
+    
+    #print('Thank you for using my Apex Legends custom match data processor!')
+    #print('For more apps made by me, check out my website: https://bombersapps.com')
 
     if os.path.exists('C:/ApexData'):
         print('Data will be sent to C:/ApexData')
@@ -41,6 +42,8 @@ def main():
         dfItemFlat.drop('token_timestamp', axis=1, inplace=True)
         dfItemFlat = dfItemFlat[(dfItemFlat['data_time_date'].str.startswith(matchDate))]
         df = pd.concat([df,dfItemFlat])
+
+    
     
     for i in tokenSecret.tokens:
         if i in df['token'].values:
@@ -59,6 +62,7 @@ def main():
 
     if match1Played == False & match2Played == False & match3Played == False & match4Played == False & match5Played == False & match6Played == False:
         print('No matches have been played on '+matchDate)
+        input("Press ENTER to close this window...")
         sys.exit()
 
     if match1Played == True:
@@ -115,6 +119,75 @@ def main():
     dfMatchData.drop('global_index', axis=1, inplace=True)
     dfMatchData.drop_duplicates(inplace=True)
 
+    dfMatchDataStarts = dfMatchData.filter({
+        'Match',
+        'Date'
+    })
+    dfMatch0 = pd.DataFrame(columns=['Date', 'Match'], data=[[np.nan,'No Match']])
+    dfMatch1 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 1']
+    dfMatch2 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 2']
+    dfMatch3 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 3']
+    dfMatch4 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 4']
+    dfMatch5 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 5']
+    dfMatch6 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 6']
+    
+    os.system('cls')
+
+    if len(dfMatch1) > 0:
+        dfMatch1 = pd.concat([dfMatch1,dfMatch0])
+        dfMatch1.reset_index(drop=True, inplace=True)
+        dfMatch1.index.rename('Match Index', inplace=True)
+        print(dfMatch1)
+        match1Select = input('Select which match index you want to use for match 1: [0] ') or '0'
+        match1Select = (dfMatch1.iat[int(match1Select),0])
+        os.system('cls')
+    if len(dfMatch2) > 0:
+        dfMatch2 = pd.concat([dfMatch2,dfMatch0])
+        dfMatch2.reset_index(drop=True, inplace=True)
+        dfMatch2.index.rename('Match Index', inplace=True)
+        print(dfMatch2)
+        match2Select = input('Select which match index you want to use for match 2: [0] ') or '0'
+        match2Select = (dfMatch2.iat[int(match2Select),0])
+        os.system('cls')
+    if len(dfMatch3) > 0:
+        dfMatch3 = pd.concat([dfMatch3,dfMatch0])
+        dfMatch3.reset_index(drop=True, inplace=True)
+        dfMatch3.index.rename('Match Index', inplace=True)
+        print(dfMatch3)
+        match3Select = input('Select which match index you want to use for match 3: [0] ') or '0'
+        match3Select = (dfMatch3.iat[int(match3Select),0])
+        os.system('cls')
+    if len(dfMatch4) > 0:
+        dfMatch4 = pd.concat([dfMatch4,dfMatch0])
+        dfMatch4.reset_index(drop=True, inplace=True)
+        dfMatch4.index.rename('Match Index', inplace=True)
+        print(dfMatch4)
+        match4Select = input('Select which match index you want to use for match 4: [0] ') or '0'
+        match4Select = (dfMatch4.iat[int(match4Select),0])
+        os.system('cls')
+    if len(dfMatch5) > 0:
+        dfMatch5 = pd.concat([dfMatch5,dfMatch0])
+        dfMatch5.reset_index(drop=True, inplace=True)
+        dfMatch5.index.rename('Match Index', inplace=True)
+        print(dfMatch5)
+        match5Select = input('Select which match index you want to use for match 5: [0] ') or '0'
+        match5Select = (dfMatch5.iat[int(match5Select),0])
+        os.system('cls')
+    if len(dfMatch6) > 0:
+        dfMatch6 = pd.concat([dfMatch6,dfMatch0])
+        dfMatch6.reset_index(drop=True, inplace=True)
+        dfMatch6.index.rename('Match Index', inplace=True)
+        print(dfMatch6)
+        match6Select = input('Select which match index you want to use for match 6: [0] ') or '0'
+        match6Select = (dfMatch6.iat[int(match6Select),0])
+        os.system('cls')
+
+    print('Enter the date of matches in YYYY-MM-DD format: 2022-09-11\r\nData will be sent to C:/ApexData\r\nDownloading data from match 1\r\nDownloading data from match 2\r\nDownloading data from match 3\r\nDownloading data from match 4\r\nDownloading data from match 5\r\nDownloading data from match 6\r\nMatch 1 valid for 2022-09-11\r\nMatch 2 valid for 2022-09-11\r\nMatch 3 valid for 2022-09-11\r\nMatch 4 valid for 2022-09-11\r\nMatch 5 valid for 2022-09-11\r\nMatch 6 valid for 2022-09-11\r\nProcessing match data')
+
+    validMatchDates = [match1Select, match2Select, match3Select, match4Select, match5Select, match6Select]
+    dfMatchData = dfMatchData.loc[dfMatchData.Date.isin(validMatchDates)]
+    validMatchStarts = dfMatchData.StartTime.values.tolist()
+
     print('Processing player data')
     dfPlayerData = df.filter([
         'token',
@@ -133,6 +206,7 @@ def main():
         'data_rosters_rosterPlayers_respawnsGiven',
         'data_rosters_rosterPlayers_survivalTime',
         'data_rosters_rosterPlacement',
+        'data_time_date'
         ], axis=1)
     dfPlayerData.rename(columns={
         'token': 'Token',
@@ -180,7 +254,7 @@ def main():
         'Token',
         'StartTime'
         ]]
-    dfPlayerData = dfPlayerData[dfPlayerData.StartTime.isin(col_list)]
+    dfPlayerData = dfPlayerData[dfPlayerData.StartTime.isin(validMatchStarts)]
     dfPlayerData.reset_index(inplace=True)
     dfPlayerData.drop_duplicates(inplace=True, ignore_index=True)
     dfPlayerData.drop('global_index', axis=1, inplace=True)
@@ -248,7 +322,8 @@ def main():
         'data_rosters_rosterPlacement',
         'data_rosters_rosterDmg',
         'data_rosters_rosterKills',
-        'data_rosters_rosterAssists'
+        'data_rosters_rosterAssists',
+        'data_time_date'
         ], axis=1)
     dfTeamData.rename(columns={
         'token': 'Token',
@@ -274,11 +349,9 @@ def main():
         'Token',
         'StartTime'
         ]]
-    dfTeamData = dfTeamData[dfTeamData.StartTime.isin(col_list)]
-    dfTeamData.reset_index(inplace=True)
+    dfTeamData = dfTeamData[dfTeamData.StartTime.isin(validMatchStarts)]
+    dfTeamData.reset_index(drop=True, inplace=True)
     dfTeamData.drop_duplicates(inplace=True, ignore_index=True)
-    dfTeamData.drop('global_index', axis=1, inplace=True)
-    dfTeamData.drop_duplicates(inplace=True)
     dfTeamDataMatch1 = dfTeamData[dfTeamData['Match']=='Match 1']
     dfTeamDataMatch1.sort_values(by=['Placement'], inplace=True)
     dfTeamDataMatch2 = dfTeamData[dfTeamData['Match']=='Match 2']
@@ -350,14 +423,10 @@ def main():
     sheet_name='Matches',
     index=False,
     encoding='utf-8')
-    matchPrinter = 0
-    for i in playerMatchList:
-        matchPrinter += 1
-        i.to_excel(excelWriter,
-        sheet_name='PD Match '+str(matchPrinter),
-        index=False,
-        encoding='utf-8')
-    matchPrinter = 0
+    dfTeamDataTotal.to_excel(excelWriter,
+    sheet_name='Team Totals',
+    index=False,
+    encoding='utf-8')
     matchPrinter = 0
     for i in teamMatchList:
         matchPrinter += 1
@@ -365,10 +434,6 @@ def main():
         sheet_name='TD Match '+str(matchPrinter),
         index=False,
         encoding='utf-8')
-    dfTeamDataTotal.to_excel(excelWriter,
-    sheet_name='Team Totals',
-    index=False,
-    encoding='utf-8')
     dfPlayerDataMVP.to_excel(excelWriter,
     sheet_name='Day MVP',
     index=False,
@@ -381,6 +446,13 @@ def main():
     sheet_name='Headshot',
     index=False,
     encoding='utf-8')
+    matchPrinter = 0
+    for i in playerMatchList:
+        matchPrinter += 1
+        i.to_excel(excelWriter,
+        sheet_name='PD Match '+str(matchPrinter),
+        index=False,
+        encoding='utf-8')
     excelWriter.save()
 
     print('Done!')
