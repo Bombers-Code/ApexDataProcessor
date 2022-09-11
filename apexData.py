@@ -4,12 +4,35 @@ import flat_table as ft
 import tokenSecret
 import os
 import numpy as np
+import time
+import json
+
+if os.path.exists('C:/ApexData/tokenSecret.json') and os.path.exists('C:/ApexData/APISecret.json'):
+    print('Retrieving API details from json')
+    with open('C:/ApexData/tokenSecret.json', 'r') as tokenFile:
+        tokens = json.load(tokenFile)
+    with open('C:/ApexData/APISecret.json', 'r') as APIFile:
+        apiURL = json.load(APIFile)
+else:
+    with open('C:/ApexData/tokenSecret.json', 'w') as jsonFile:
+        tokens = ['01234567-89abcdef0123456789abcd',
+            '01234567-89abcdef0123456789abcd',
+            '01234567-89abcdef0123456789abcd',
+            '01234567-89abcdef0123456789abcd',
+            '01234567-89abcdef0123456789abcd',
+            '01234567-89abcdef0123456789abcd']
+        json.dump((tokens), jsonFile)
+    with open('C:/ApexData/APISecret.json', 'w') as jsonFile:
+        apiURL = 'https://apex.api/details/here'
+        json.dump((apiURL), jsonFile)
+    print('Please open C:/ApexData and fill in the tokenSecret and APISecret files with your details.')
+    sys.exit()
 
 def main():
     pd.options.mode.chained_assignment = None  # default='warn'
 
     matchDate = input("Enter the date of matches in YYYY-MM-DD format: ")
-    
+
     #print('Thank you for using my Apex Legends custom match data processor!')
     #print('For more apps made by me, check out my website: https://bombersapps.com')
 
@@ -29,10 +52,10 @@ def main():
     match5Played = False
     match6Played = False
 
-    for i in tokenSecret.tokens:
+    for i in tokens:
         matchNumber += 1
         print('Downloading data from match ' + str(matchNumber))
-        data = pd.read_json(tokenSecret.apiURL+i+tokenSecret.apiURLEnd)
+        data = pd.read_json(apiURL+i)
         dfItem = pd.DataFrame.from_records(data)
         dfItemFlat = ft.normalize(dfItem)
         dfItemFlat.index.name = 'global_index'
@@ -45,19 +68,19 @@ def main():
 
     
     
-    for i in tokenSecret.tokens:
+    for i in tokens:
         if i in df['token'].values:
-            if i == tokenSecret.tokens[0]:
+            if i == tokens[0]:
                 match1Played = True
-            elif i == tokenSecret.tokens[1]:
+            elif i == tokens[1]:
                 match2Played = True
-            elif i == tokenSecret.tokens[2]:
+            elif i == tokens[2]:
                 match3Played = True
-            elif i == tokenSecret.tokens[3]:
+            elif i == tokens[3]:
                 match4Played = True
-            elif i == tokenSecret.tokens[4]:
+            elif i == tokens[4]:
                 match5Played = True
-            elif i == tokenSecret.tokens[5]:
+            elif i == tokens[5]:
                 match6Played = True
 
     if match1Played == False & match2Played == False & match3Played == False & match4Played == False & match5Played == False & match6Played == False:
@@ -377,45 +400,45 @@ def main():
 
     teamMatchList = [dfTeamDataMatch1,dfTeamDataMatch2,dfTeamDataMatch3,dfTeamDataMatch4,dfTeamDataMatch5,dfTeamDataMatch6]
     
-    print('Writing HTML files')
-    matchPrinter = 0
-    for i in playerMatchList:
-        matchPrinter += 1
-        htmlMatch = i.to_html()
-        text_file = open ( 'C:/ApexData/playerMatch'+str(matchPrinter)+'.html' , 'w', encoding='utf-8')
-        text_file.write(htmlMatch)
-        text_file.close()
-    matchPrinter = 0
-    for i in teamMatchList:
-        matchPrinter += 1
-        htmlMatch = i.to_html()
-        text_file = open ( 'C:/ApexData/teamMatch'+str(matchPrinter)+'.html' , 'w', encoding='utf-8')
-        text_file.write(htmlMatch)
-        text_file.close()
-    htmlMatch = dfMatchData.to_html()
-    text_file = open ( 'C:/ApexData/match.html' , 'w', encoding='utf-8')
-    text_file.write(htmlMatch)
-    text_file.close()
-    htmlMatch = dfTeamDataTotal.to_html()
-    text_file = open ( 'C:/ApexData/teamTotals.html' , 'w', encoding='utf-8')
-    text_file.write(htmlMatch)
-    text_file.close()
-    htmlMatch = dfPlayerDataMVP.to_html()
-    text_file = open ( 'C:/ApexData/playerMVP.html' , 'w', encoding='utf-8')
-    text_file.write(htmlMatch)
-    text_file.close()
-    htmlMatch = dfPlayerDataHS.to_html()
-    text_file = open ( 'C:/ApexData/playerHS.html' , 'w', encoding='utf-8')
-    text_file.write(htmlMatch)
-    text_file.close()
-    htmlPlayer = dfPlayerData.to_html()
-    text_file = open ( 'C:/ApexData/player.html' , 'w', encoding='utf-8')
-    text_file.write(htmlPlayer)
-    text_file.close()
-    htmlTeam = dfTeamData.to_html()
-    text_file = open ( 'C:/ApexData/team.html' , 'w', encoding='utf-8')
-    text_file.write(htmlTeam)
-    text_file.close()
+    #print('Writing HTML files')
+    #matchPrinter = 0
+    #for i in playerMatchList:
+    #    matchPrinter += 1
+    #    htmlMatch = i.to_html()
+    #    text_file = open ( 'C:/ApexData/playerMatch'+str(matchPrinter)+'.html' , 'w', encoding='utf-8')
+    #    text_file.write(htmlMatch)
+    #    text_file.close()
+    #matchPrinter = 0
+    #for i in teamMatchList:
+    #    matchPrinter += 1
+    #    htmlMatch = i.to_html()
+    #    text_file = open ( 'C:/ApexData/teamMatch'+str(matchPrinter)+'.html' , 'w', encoding='utf-8')
+    #    text_file.write(htmlMatch)
+    #    text_file.close()
+    #htmlMatch = dfMatchData.to_html()
+    #text_file = open ( 'C:/ApexData/match.html' , 'w', encoding='utf-8')
+    #text_file.write(htmlMatch)
+    #text_file.close()
+    #htmlMatch = dfTeamDataTotal.to_html()
+    #text_file = open ( 'C:/ApexData/teamTotals.html' , 'w', encoding='utf-8')
+    #text_file.write(htmlMatch)
+    #text_file.close()
+    #htmlMatch = dfPlayerDataMVP.to_html()
+    #text_file = open ( 'C:/ApexData/playerMVP.html' , 'w', encoding='utf-8')
+    #text_file.write(htmlMatch)
+    #text_file.close()
+    #htmlMatch = dfPlayerDataHS.to_html()
+    #text_file = open ( 'C:/ApexData/playerHS.html' , 'w', encoding='utf-8')
+    #text_file.write(htmlMatch)
+    #text_file.close()
+    #htmlPlayer = dfPlayerData.to_html()
+    #text_file = open ( 'C:/ApexData/player.html' , 'w', encoding='utf-8')
+    #text_file.write(htmlPlayer)
+    #text_file.close()
+    #htmlTeam = dfTeamData.to_html()
+    #text_file = open ( 'C:/ApexData/team.html' , 'w', encoding='utf-8')
+    #text_file.write(htmlTeam)
+    #text_file.close()
 
     print('Writing to Excel workbook')
     excelWriter = pd.ExcelWriter('C:/ApexData/'+matchDate+'.xlsx', engine='xlsxwriter')
@@ -456,20 +479,21 @@ def main():
     excelWriter.save()
 
     print('Done!')
+    time.sleep(1)
     input("Press ENTER to close this window...")
 
 def matchNumberer(row):
-    if row['token'] == tokenSecret.tokens[0]:
+    if row['token'] == tokens[0]:
         val = 'Match 1'
-    elif row['token'] == tokenSecret.tokens[1]:
+    elif row['token'] == tokens[1]:
         val = 'Match 2'
-    elif row['token'] == tokenSecret.tokens[2]:
+    elif row['token'] == tokens[2]:
         val = 'Match 3'
-    elif row['token'] == tokenSecret.tokens[3]:
+    elif row['token'] == tokens[3]:
         val = 'Match 4'
-    elif row['token'] == tokenSecret.tokens[4]:
+    elif row['token'] == tokens[4]:
         val = 'Match 5'
-    elif row['token'] == tokenSecret.tokens[5]:
+    elif row['token'] == tokens[5]:
         val = 'Match 6'
     return val
 
