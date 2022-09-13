@@ -1,7 +1,6 @@
 import pandas as pd
 import sys
 import flat_table as ft
-import tokenSecret
 import os
 import numpy as np
 import time
@@ -26,6 +25,8 @@ else:
         apiURL = 'https://apex.api/details/here'
         json.dump((apiURL), jsonFile)
     print('Please open C:/ApexData and fill in the tokenSecret and APISecret files with your details.')
+    time.sleep(1)
+    input("Press ENTER to close this window...")
     sys.exit()
 
 def main():
@@ -85,6 +86,7 @@ def main():
 
     if match1Played == False & match2Played == False & match3Played == False & match4Played == False & match5Played == False & match6Played == False:
         print('No matches have been played on '+matchDate)
+        time.sleep(1)
         input("Press ENTER to close this window...")
         sys.exit()
 
