@@ -5,7 +5,12 @@ import os
 import numpy as np
 import time
 import json
-from apexMatchVariables import matchXPlayed, dfMatchX, matchXSelect, dfPlayerDataMatchX, dfTeamDataMatchX
+
+matchXValid = {}
+dfMatchX = {}
+matchXSelect = {}
+dfPlayerDataMatchX = {}
+dfTeamDataMatchX = {}
 
 if os.path.exists('C:/ApexData/tokenSecret.json') and os.path.exists('C:/ApexData/APISecret.json'):
     print('Retrieving API details from json')
@@ -26,7 +31,6 @@ else:
         apiURL = 'https://apex.api/details/here'
         json.dump((apiURL), jsonFile)
     print('Please open C:/ApexData and fill in the tokenSecret and APISecret files with your details.')
-    print('You can have up to 24 match secret tokens!')
     time.sleep(1)
     input("Press ENTER to close this window...")
     sys.exit()
@@ -52,7 +56,7 @@ def main():
 
     for i in tokens:
         matchNumber += 1
-        print('Downloading data from match ' + str(matchNumber))
+        print('Downloading data from token ' + str(matchNumber))
         data = pd.read_json(apiURL+i)
         dfItem = pd.DataFrame.from_records(data)
         dfItemFlat = ft.normalize(dfItem)
@@ -64,19 +68,16 @@ def main():
         dfItemFlat = dfItemFlat[(dfItemFlat['data_time_date'].str.startswith(matchDate))]
         df = pd.concat([df,dfItemFlat])
 
+    matchesPlayed = 0
     for i in range(tokenCount):
         if tokens[i] in df['token'].values:
-            matchXPlayed[i] = True
+            matchesPlayed += 1
 
-    if matchXPlayed[0] == False & matchXPlayed[1] == False & matchXPlayed[2] == False & matchXPlayed[3] == False & matchXPlayed[4] == False & matchXPlayed[5] == False & matchXPlayed[6] == False & matchXPlayed[7] == False & matchXPlayed[8] == False & matchXPlayed[9] == False & matchXPlayed[10] == False & matchXPlayed[11] == False & matchXPlayed[12] == False & matchXPlayed[13] == False & matchXPlayed[14] == False & matchXPlayed[15] == False & matchXPlayed[16] == False & matchXPlayed[17] == False & matchXPlayed[18] == False & matchXPlayed[19] == False & matchXPlayed[20] == False & matchXPlayed[21] == False & matchXPlayed[22] == False & matchXPlayed[23] == False:
+    if matchesPlayed == 0:
         print('No matches have been played on '+matchDate)
         time.sleep(1)
         input("Press ENTER to close this window...")
         sys.exit()
-
-    for i in range(tokenCount):
-        if matchXPlayed[i] == True:
-            print('Match '+str(i+1)+' valide for '+matchDate)
 
     print('Processing match data')
     dfMatchData = df.filter([
@@ -125,31 +126,59 @@ def main():
     dfMatch0 = pd.DataFrame(columns=['Date', 'Match'], data=[[np.nan,'No Match']])
 
     for i in range(tokenCount):
-        dfMatchX[i] = dfMatchDataStarts[dfMatchDataStarts['Match']==('Match '+str(i+1))]
+        dfMatchX.update({i: dfMatchDataStarts[dfMatchDataStarts['Match']==('Match '+str(i+1))]})
     
     os.system('cls')
 
     for i in range(tokenCount):
         if len(dfMatchX[i]) > 0:
-            dfMatchX[i] = pd.concat([dfMatchX[i],dfMatch0])
+            dfMatchX.update({i: pd.concat([dfMatchX[i],dfMatch0])})
             dfMatchX[i].reset_index(drop=True, inplace=True)
             dfMatchX[i].index.rename('Match Index', inplace=True)
             print(dfMatchX[i])
-            matchXSelect[i] = input('Select which match index you want to use for match '+str(i+1)+': [0] ') or '0'
-            matchXSelect[i] = (dfMatchX[i].iat[int(matchXSelect[i]),0])
+            matchSelector = input('Select which match index you want to use for match '+str(i+1)+': [0] ') or '0'
+            matchXSelect.update({i: (dfMatchX[i].at[int(matchSelector),'Date'])})
+            if str(matchXSelect[i]) == 'nan':
+                matchXValid.update({i: False})
+            else:
+                matchXValid.update({i: True})
             os.system('cls')
 
-    print('Enter the date of matches in YYYY-MM-DD format: 2022-09-11\r\nData will be sent to C:/ApexData\r\nDownloading data from match 1\r\nDownloading data from match 2\r\nDownloading data from match 3\r\nDownloading data from match 4\r\nDownloading data from match 5\r\nDownloading data from match 6\r\nMatch 1 valid for 2022-09-11\r\nMatch 2 valid for 2022-09-11\r\nMatch 3 valid for 2022-09-11\r\nMatch 4 valid for 2022-09-11\r\nMatch 5 valid for 2022-09-11\r\nMatch 6 valid for 2022-09-11\r\nProcessing match data')
+    validMatches = 0
+
+    for i in range(tokenCount):
+        if matchXValid[i] == True:
+            validMatches += 1
+    time.sleep(0.2)
+
+    if validMatches == 0:
+        print('You have selected no valid matches for '+matchDate)
+        time.sleep(1)
+        input("Press ENTER to close this window...")
+        sys.exit()
+
+    print('Date of processed matches: '+matchDate)
+    time.sleep(0.2)
+    print('Processed data will be sent to C:/ApexData')
+    time.sleep(0.2)
+    print('Downloaded data from '+str(tokenCount)+' tokens')
+    time.sleep(0.2)
+    print('Selected data from '+str(validMatches)+' matches')
+    time.sleep(0.2)
+    print('Processing match data')
+    time.sleep(0.5)
 
     validMatchDates = []
 
     for i in range(tokenCount):
-        validMatchDates.append(matchXSelect[i])
+        if matchXSelect[i] != 'No Match':
+            validMatchDates.append(matchXSelect[i])
 
     dfMatchData = dfMatchData.loc[dfMatchData.Date.isin(validMatchDates)]
     validMatchStarts = dfMatchData.StartTime.values.tolist()
 
     print('Processing player data')
+    time.sleep(0.5)
     dfPlayerData = df.filter([
         'token',
         'match_start',
@@ -222,7 +251,7 @@ def main():
     dfPlayerData.drop_duplicates(inplace=True)
 
     for i in range(tokenCount):
-        dfPlayerDataMatchX[i] = dfPlayerData[dfPlayerData['Match']==('Match ' + str(i+1))]
+        dfPlayerDataMatchX.update({i: dfPlayerData[dfPlayerData['Match']==('Match ' + str(i+1))]})
         dfPlayerDataMatchX[i].sort_values(by=['TeamPlacement'], inplace=True)
 
     dfPlayerDataTotal['Score'] = dfPlayerDataTotal['PlacementScore']/3 + dfPlayerDataTotal['Kills'] + dfPlayerDataTotal['Assists']/2
@@ -271,6 +300,7 @@ def main():
         playerMatchList.append(dfPlayerDataMatchX[i])
 
     print('Processing team data')
+    time.sleep(0.5)
     dfTeamData = df.filter([
         'token',
         'match_start',
@@ -309,10 +339,6 @@ def main():
     dfTeamData.reset_index(drop=True, inplace=True)
     dfTeamData.drop_duplicates(ignore_index=True, inplace=True)
 
-    for i in range(tokenCount):
-        dfTeamDataMatchX[i] = dfTeamData[dfTeamData['Match']==('Match ' + str(i+1))]
-        dfTeamDataMatchX[i].sort_values(by=['Placement'], inplace=True)
-
     dfTeamDataTotal = dfTeamData[[
         'Name',
         'Damage',
@@ -323,6 +349,10 @@ def main():
     dfTeamDataTotal = dfTeamDataTotal.groupby(['Name']).sum()
     dfTeamDataTotal.sort_values(by=['Score'], ascending=False, inplace=True)
     dfTeamDataTotal.reset_index(inplace=True)
+
+    for i in range(tokenCount):
+        dfTeamDataMatchX.update({i: dfTeamData[dfTeamData['Match']==('Match ' + str(i+1))]})
+        dfTeamDataMatchX[i].sort_values(by=['Placement'], inplace=True)
  
     teamMatchList = []
     for i in range(tokenCount):
@@ -369,6 +399,7 @@ def main():
     #text_file.close()
 
     print('Writing to Excel workbook')
+    time.sleep(0.5)
     excelWriter = pd.ExcelWriter('C:/ApexData/'+matchDate+'.xlsx', engine='xlsxwriter')
     dfMatchData.to_excel(excelWriter,
     sheet_name='Matches',
