@@ -5,6 +5,7 @@ import os
 import numpy as np
 import time
 import json
+from apexMatchVariables import matchXPlayed, dfMatchX, matchXSelect, dfPlayerDataMatchX, dfTeamDataMatchX
 
 if os.path.exists('C:/ApexData/tokenSecret.json') and os.path.exists('C:/ApexData/APISecret.json'):
     print('Retrieving API details from json')
@@ -25,9 +26,12 @@ else:
         apiURL = 'https://apex.api/details/here'
         json.dump((apiURL), jsonFile)
     print('Please open C:/ApexData and fill in the tokenSecret and APISecret files with your details.')
+    print('You can have up to 24 match secret tokens!')
     time.sleep(1)
     input("Press ENTER to close this window...")
     sys.exit()
+
+tokenCount = len(tokens)
 
 def main():
     pd.options.mode.chained_assignment = None  # default='warn'
@@ -46,13 +50,6 @@ def main():
     matchNumber = 0
     df = pd.DataFrame()
 
-    match1Played = False
-    match2Played = False
-    match3Played = False
-    match4Played = False
-    match5Played = False
-    match6Played = False
-
     for i in tokens:
         matchNumber += 1
         print('Downloading data from match ' + str(matchNumber))
@@ -67,41 +64,19 @@ def main():
         dfItemFlat = dfItemFlat[(dfItemFlat['data_time_date'].str.startswith(matchDate))]
         df = pd.concat([df,dfItemFlat])
 
-    
-    
-    for i in tokens:
-        if i in df['token'].values:
-            if i == tokens[0]:
-                match1Played = True
-            elif i == tokens[1]:
-                match2Played = True
-            elif i == tokens[2]:
-                match3Played = True
-            elif i == tokens[3]:
-                match4Played = True
-            elif i == tokens[4]:
-                match5Played = True
-            elif i == tokens[5]:
-                match6Played = True
+    for i in range(tokenCount):
+        if tokens[i] in df['token'].values:
+            matchXPlayed[i] = True
 
-    if match1Played == False & match2Played == False & match3Played == False & match4Played == False & match5Played == False & match6Played == False:
+    if matchXPlayed[0] == False & matchXPlayed[1] == False & matchXPlayed[2] == False & matchXPlayed[3] == False & matchXPlayed[4] == False & matchXPlayed[5] == False & matchXPlayed[6] == False & matchXPlayed[7] == False & matchXPlayed[8] == False & matchXPlayed[9] == False & matchXPlayed[10] == False & matchXPlayed[11] == False & matchXPlayed[12] == False & matchXPlayed[13] == False & matchXPlayed[14] == False & matchXPlayed[15] == False & matchXPlayed[16] == False & matchXPlayed[17] == False & matchXPlayed[18] == False & matchXPlayed[19] == False & matchXPlayed[20] == False & matchXPlayed[21] == False & matchXPlayed[22] == False & matchXPlayed[23] == False:
         print('No matches have been played on '+matchDate)
         time.sleep(1)
         input("Press ENTER to close this window...")
         sys.exit()
 
-    if match1Played == True:
-        print('Match 1 valid for '+matchDate)
-    if match2Played == True:
-        print('Match 2 valid for '+matchDate)
-    if match3Played == True:
-        print('Match 3 valid for '+matchDate)
-    if match4Played == True:
-        print('Match 4 valid for '+matchDate)
-    if match5Played == True:
-        print('Match 5 valid for '+matchDate)
-    if match6Played == True:
-        print('Match 6 valid for '+matchDate)
+    for i in range(tokenCount):
+        if matchXPlayed[i] == True:
+            print('Match '+str(i+1)+' valide for '+matchDate)
 
     print('Processing match data')
     dfMatchData = df.filter([
@@ -143,73 +118,34 @@ def main():
     dfMatchData.drop_duplicates(inplace=True, ignore_index=True)
     dfMatchData.drop('global_index', axis=1, inplace=True)
     dfMatchData.drop_duplicates(inplace=True)
-
     dfMatchDataStarts = dfMatchData.filter({
         'Match',
         'Date'
     })
     dfMatch0 = pd.DataFrame(columns=['Date', 'Match'], data=[[np.nan,'No Match']])
-    dfMatch1 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 1']
-    dfMatch2 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 2']
-    dfMatch3 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 3']
-    dfMatch4 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 4']
-    dfMatch5 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 5']
-    dfMatch6 = dfMatchDataStarts[dfMatchDataStarts['Match']=='Match 6']
+
+    for i in range(tokenCount):
+        dfMatchX[i] = dfMatchDataStarts[dfMatchDataStarts['Match']==('Match '+str(i+1))]
     
     os.system('cls')
 
-    if len(dfMatch1) > 0:
-        dfMatch1 = pd.concat([dfMatch1,dfMatch0])
-        dfMatch1.reset_index(drop=True, inplace=True)
-        dfMatch1.index.rename('Match Index', inplace=True)
-        print(dfMatch1)
-        match1Select = input('Select which match index you want to use for match 1: [0] ') or '0'
-        match1Select = (dfMatch1.iat[int(match1Select),0])
-        os.system('cls')
-    if len(dfMatch2) > 0:
-        dfMatch2 = pd.concat([dfMatch2,dfMatch0])
-        dfMatch2.reset_index(drop=True, inplace=True)
-        dfMatch2.index.rename('Match Index', inplace=True)
-        print(dfMatch2)
-        match2Select = input('Select which match index you want to use for match 2: [0] ') or '0'
-        match2Select = (dfMatch2.iat[int(match2Select),0])
-        os.system('cls')
-    if len(dfMatch3) > 0:
-        dfMatch3 = pd.concat([dfMatch3,dfMatch0])
-        dfMatch3.reset_index(drop=True, inplace=True)
-        dfMatch3.index.rename('Match Index', inplace=True)
-        print(dfMatch3)
-        match3Select = input('Select which match index you want to use for match 3: [0] ') or '0'
-        match3Select = (dfMatch3.iat[int(match3Select),0])
-        os.system('cls')
-    if len(dfMatch4) > 0:
-        dfMatch4 = pd.concat([dfMatch4,dfMatch0])
-        dfMatch4.reset_index(drop=True, inplace=True)
-        dfMatch4.index.rename('Match Index', inplace=True)
-        print(dfMatch4)
-        match4Select = input('Select which match index you want to use for match 4: [0] ') or '0'
-        match4Select = (dfMatch4.iat[int(match4Select),0])
-        os.system('cls')
-    if len(dfMatch5) > 0:
-        dfMatch5 = pd.concat([dfMatch5,dfMatch0])
-        dfMatch5.reset_index(drop=True, inplace=True)
-        dfMatch5.index.rename('Match Index', inplace=True)
-        print(dfMatch5)
-        match5Select = input('Select which match index you want to use for match 5: [0] ') or '0'
-        match5Select = (dfMatch5.iat[int(match5Select),0])
-        os.system('cls')
-    if len(dfMatch6) > 0:
-        dfMatch6 = pd.concat([dfMatch6,dfMatch0])
-        dfMatch6.reset_index(drop=True, inplace=True)
-        dfMatch6.index.rename('Match Index', inplace=True)
-        print(dfMatch6)
-        match6Select = input('Select which match index you want to use for match 6: [0] ') or '0'
-        match6Select = (dfMatch6.iat[int(match6Select),0])
-        os.system('cls')
+    for i in range(tokenCount):
+        if len(dfMatchX[i]) > 0:
+            dfMatchX[i] = pd.concat([dfMatchX[i],dfMatch0])
+            dfMatchX[i].reset_index(drop=True, inplace=True)
+            dfMatchX[i].index.rename('Match Index', inplace=True)
+            print(dfMatchX[i])
+            matchXSelect[i] = input('Select which match index you want to use for match '+str(i+1)+': [0] ') or '0'
+            matchXSelect[i] = (dfMatchX[i].iat[int(matchXSelect[i]),0])
+            os.system('cls')
 
     print('Enter the date of matches in YYYY-MM-DD format: 2022-09-11\r\nData will be sent to C:/ApexData\r\nDownloading data from match 1\r\nDownloading data from match 2\r\nDownloading data from match 3\r\nDownloading data from match 4\r\nDownloading data from match 5\r\nDownloading data from match 6\r\nMatch 1 valid for 2022-09-11\r\nMatch 2 valid for 2022-09-11\r\nMatch 3 valid for 2022-09-11\r\nMatch 4 valid for 2022-09-11\r\nMatch 5 valid for 2022-09-11\r\nMatch 6 valid for 2022-09-11\r\nProcessing match data')
 
-    validMatchDates = [match1Select, match2Select, match3Select, match4Select, match5Select, match6Select]
+    validMatchDates = []
+
+    for i in range(tokenCount):
+        validMatchDates.append(matchXSelect[i])
+
     dfMatchData = dfMatchData.loc[dfMatchData.Date.isin(validMatchDates)]
     validMatchStarts = dfMatchData.StartTime.values.tolist()
 
@@ -284,18 +220,11 @@ def main():
     dfPlayerData.drop_duplicates(inplace=True, ignore_index=True)
     dfPlayerData.drop('global_index', axis=1, inplace=True)
     dfPlayerData.drop_duplicates(inplace=True)
-    dfPlayerDataMatch1 = dfPlayerData[dfPlayerData['Match']=='Match 1']
-    dfPlayerDataMatch1.sort_values(by=['TeamPlacement'], inplace=True)
-    dfPlayerDataMatch2 = dfPlayerData[dfPlayerData['Match']=='Match 2']
-    dfPlayerDataMatch2.sort_values(by=['TeamPlacement'], inplace=True)
-    dfPlayerDataMatch3 = dfPlayerData[dfPlayerData['Match']=='Match 3']
-    dfPlayerDataMatch3.sort_values(by=['TeamPlacement'], inplace=True)
-    dfPlayerDataMatch4 = dfPlayerData[dfPlayerData['Match']=='Match 4']
-    dfPlayerDataMatch4.sort_values(by=['TeamPlacement'], inplace=True)
-    dfPlayerDataMatch5 = dfPlayerData[dfPlayerData['Match']=='Match 5']
-    dfPlayerDataMatch5.sort_values(by=['TeamPlacement'], inplace=True)
-    dfPlayerDataMatch6 = dfPlayerData[dfPlayerData['Match']=='Match 6']
-    dfPlayerDataMatch6.sort_values(by=['TeamPlacement'], inplace=True)
+
+    for i in range(tokenCount):
+        dfPlayerDataMatchX[i] = dfPlayerData[dfPlayerData['Match']==('Match ' + str(i+1))]
+        dfPlayerDataMatchX[i].sort_values(by=['TeamPlacement'], inplace=True)
+
     dfPlayerDataTotal['Score'] = dfPlayerDataTotal['PlacementScore']/3 + dfPlayerDataTotal['Kills'] + dfPlayerDataTotal['Assists']/2
     dfPlayerDataTotal = dfPlayerDataTotal[[
         'PlayerName',
@@ -337,7 +266,9 @@ def main():
     dfPlayerDataAccuracy.sort_values(by=['Hit%'], ascending=False, inplace=True)
     dfPlayerDataAccuracy.reset_index(drop=True, inplace=True)
 
-    playerMatchList = [dfPlayerDataMatch1,dfPlayerDataMatch2,dfPlayerDataMatch3,dfPlayerDataMatch4,dfPlayerDataMatch5,dfPlayerDataMatch6]
+    playerMatchList = []
+    for i in range(tokenCount):
+        playerMatchList.append(dfPlayerDataMatchX[i])
 
     print('Processing team data')
     dfTeamData = df.filter([
@@ -376,19 +307,12 @@ def main():
         ]]
     dfTeamData = dfTeamData[dfTeamData.StartTime.isin(validMatchStarts)]
     dfTeamData.reset_index(drop=True, inplace=True)
-    dfTeamData.drop_duplicates(inplace=True, ignore_index=True)
-    dfTeamDataMatch1 = dfTeamData[dfTeamData['Match']=='Match 1']
-    dfTeamDataMatch1.sort_values(by=['Placement'], inplace=True)
-    dfTeamDataMatch2 = dfTeamData[dfTeamData['Match']=='Match 2']
-    dfTeamDataMatch2.sort_values(by=['Placement'], inplace=True)
-    dfTeamDataMatch3 = dfTeamData[dfTeamData['Match']=='Match 3']
-    dfTeamDataMatch3.sort_values(by=['Placement'], inplace=True)
-    dfTeamDataMatch4 = dfTeamData[dfTeamData['Match']=='Match 4']
-    dfTeamDataMatch4.sort_values(by=['Placement'], inplace=True)
-    dfTeamDataMatch5 = dfTeamData[dfTeamData['Match']=='Match 5']
-    dfTeamDataMatch5.sort_values(by=['Placement'], inplace=True)
-    dfTeamDataMatch6 = dfTeamData[dfTeamData['Match']=='Match 6']
-    dfTeamDataMatch6.sort_values(by=['Placement'], inplace=True)
+    dfTeamData.drop_duplicates(ignore_index=True, inplace=True)
+
+    for i in range(tokenCount):
+        dfTeamDataMatchX[i] = dfTeamData[dfTeamData['Match']==('Match ' + str(i+1))]
+        dfTeamDataMatchX[i].sort_values(by=['Placement'], inplace=True)
+
     dfTeamDataTotal = dfTeamData[[
         'Name',
         'Damage',
@@ -399,9 +323,11 @@ def main():
     dfTeamDataTotal = dfTeamDataTotal.groupby(['Name']).sum()
     dfTeamDataTotal.sort_values(by=['Score'], ascending=False, inplace=True)
     dfTeamDataTotal.reset_index(inplace=True)
+ 
+    teamMatchList = []
+    for i in range(tokenCount):
+        teamMatchList.append(dfTeamDataMatchX[i])
 
-    teamMatchList = [dfTeamDataMatch1,dfTeamDataMatch2,dfTeamDataMatch3,dfTeamDataMatch4,dfTeamDataMatch5,dfTeamDataMatch6]
-    
     #print('Writing HTML files')
     #matchPrinter = 0
     #for i in playerMatchList:
@@ -485,18 +411,9 @@ def main():
     input("Press ENTER to close this window...")
 
 def matchNumberer(row):
-    if row['token'] == tokens[0]:
-        val = 'Match 1'
-    elif row['token'] == tokens[1]:
-        val = 'Match 2'
-    elif row['token'] == tokens[2]:
-        val = 'Match 3'
-    elif row['token'] == tokens[3]:
-        val = 'Match 4'
-    elif row['token'] == tokens[4]:
-        val = 'Match 5'
-    elif row['token'] == tokens[5]:
-        val = 'Match 6'
+    for i in range(tokenCount):
+        if row['token'] == tokens[i]:
+            val = 'Match ' + str(i+1)
     return val
 
 def placementScore(row):
