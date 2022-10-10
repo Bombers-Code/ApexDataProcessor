@@ -131,6 +131,10 @@ def main():
     os.system('cls')
 
     for i in range(tokenCount):
+        matchXValid.update({i: False})
+        matchXSelect.update({i: 'nan'})
+
+    for i in range(tokenCount):
         if len(dfMatchX[i]) > 0:
             dfMatchX.update({i: pd.concat([dfMatchX[i],dfMatch0])})
             dfMatchX[i].reset_index(drop=True, inplace=True)
@@ -171,7 +175,7 @@ def main():
     validMatchDates = []
 
     for i in range(tokenCount):
-        if matchXSelect[i] != 'No Match':
+        if matchXSelect[i] != 'nan':
             validMatchDates.append(matchXSelect[i])
 
     dfMatchData = dfMatchData.loc[dfMatchData.Date.isin(validMatchDates)]
